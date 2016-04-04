@@ -216,6 +216,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   public void onLoadFinished(Loader<Cursor> loader, Cursor data){
     mCursorAdapter.swapCursor(data);
     mCursor = data;
+
   }
 
   @Override
