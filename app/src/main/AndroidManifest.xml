@@ -6,8 +6,9 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:theme="@style/AppTheme"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        >
         <uses-permission android:name="android.permission.INTERNET" />
         <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
         <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -43,7 +44,7 @@
             android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
             android:exported="false" />
 
-        <receiver android:name="com.example.sam_chordas.stockhawk.StockWidget">
+        <receiver android:name=".ui.StockWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -53,10 +54,13 @@
                 android:resource="@xml/stock_widget_info" />
         </receiver>
 
-
         <service
-            android:name="com.example.sam_chordas.stockhawk.WidgetService"
+            android:name=".service.WidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <activity
+            android:name=".ui.StockDetail"
+            android:label="@string/title_activity_stock_detail"></activity>
     </application>
 
 </manifest>

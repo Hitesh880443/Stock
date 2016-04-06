@@ -1,4 +1,4 @@
-package com.example.sam_chordas.stockhawk;
+package com.sam_chordas.android.stockhawk.data;
 
 import android.app.LoaderManager;
 import android.content.Context;
@@ -77,8 +77,9 @@ public class WidgetDataProvider implements RemoteViewsService.RemoteViewsFactory
 
 
         RemoteViews mView = new RemoteViews(mContext.getPackageName(),
-                android.R.layout.simple_list_item_1);
-        mView.setTextViewText(android.R.id.text1, mCursor.getString(mCursor.getColumnIndex("symbol")));
+                R.layout.list_item_quote_widget);
+        mView.setTextViewText(R.id.stock_symbol, mCursor.getString(mCursor.getColumnIndex(QuoteColumns.SYMBOL)));
+        mView.setTextViewText(R.id.bid_price, mCursor.getString(mCursor.getColumnIndex(QuoteColumns.BIDPRICE)));
         mView.setTextColor(android.R.id.text1, Color.BLACK);
         return mView;
     }

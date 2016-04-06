@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.sam_chordas.android.stockhawk.R;
@@ -52,6 +53,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   private Context mContext;
   private Cursor mCursor;
   boolean isConnected;
+  TextView textNoNetwork;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     isConnected = activeNetwork != null &&
         activeNetwork.isConnectedOrConnecting();
     setContentView(R.layout.activity_my_stocks);
+    textNoNetwork = (TextView) findViewById(R.id.no_network);
     // The intent service is for executing immediate pulls from the Yahoo API
     // GCMTaskService can only schedule tasks, they cannot execute immediately
     mServiceIntent = new Intent(this, StockIntentService.class);
@@ -72,8 +75,10 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
       mServiceIntent.putExtra(getResources().getString(R.string.tag), getResources().getString(R.string.init));
       if (isConnected){
         startService(mServiceIntent);
+        textNoNetwork.setVisibility(View.GONE);
       } else{
         networkToast();
+        textNoNetwork.setVisibility(View.VISIBLE);
       }
     }
     RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -86,6 +91,13 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
               @Override public void onItemClick(View v, int position) {
                 //TODO:
                 // do something on item click
+
+                Intent graphIntent = new Intent(mContext, StockDetail.class);
+                mCursor.moveToPosition(position);
+                graphIntent.putExtra(getResources().getString(R.string.string_symbol), mCursor.getString(mCursor.getColumnIndex(getResources().getString(R.string.string_symbol))));
+                mContext.startActivity(graphIntent);
+
+
               }
             }));
     recyclerView.setAdapter(mCursorAdapter);

@@ -1,7 +1,11 @@
 package com.sam_chordas.android.stockhawk.rest;
 
 import android.content.ContentProviderOperation;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import java.util.ArrayList;
@@ -18,7 +22,7 @@ public class Utils {
 
   public static boolean showPercent = true;
 
-  public static ArrayList quoteJsonToContentVals(String JSON){
+  public static ArrayList quoteJsonToContentVals(String JSON,Context context){
     ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>();
     JSONObject jsonObject = null;
     JSONArray resultsArray = null;
@@ -36,8 +40,14 @@ public class Utils {
 
           if (resultsArray != null && resultsArray.length() != 0){
             for (int i = 0; i < resultsArray.length(); i++){
-              jsonObject = resultsArray.getJSONObject(i);
-              batchOperations.add(buildBatchOperation(jsonObject));
+                         jsonObject = resultsArray.getJSONObject(i);
+
+              if (jsonObject != null && jsonObject.has("Bid")
+                      && jsonObject.getString("Bid") != null
+                      && !"null".equalsIgnoreCase(jsonObject.getString("Bid")))
+                batchOperations.add(buildBatchOperation(jsonObject));
+              else
+                Toast.makeText(context, context.getResources().getString(R.string.stockNotFound), Toast.LENGTH_SHORT).show();
             }
           }
         }
