@@ -22,7 +22,7 @@ public class Utils {
 
   public static boolean showPercent = true;
 
-  public static ArrayList quoteJsonToContentVals(String JSON,Context context){
+  public static ArrayList quoteJsonToContentVals(String JSON){
     ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>();
     JSONObject jsonObject = null;
     JSONArray resultsArray = null;
@@ -32,24 +32,22 @@ public class Utils {
         jsonObject = jsonObject.getJSONObject("query");
         int count = Integer.parseInt(jsonObject.getString("count"));
         if (count == 1){
+
           jsonObject = jsonObject.getJSONObject("results")
-              .getJSONObject("quote");
-          batchOperations.add(buildBatchOperation(jsonObject));
+                  .getJSONObject("quote");
+          ContentProviderOperation obj =  buildBatchOperation(jsonObject);
+          if(obj!=null)
+            batchOperations.add(obj);
         } else{
           resultsArray = jsonObject.getJSONObject("results").getJSONArray("quote");
 
           if (resultsArray != null && resultsArray.length() != 0){
             for (int i = 0; i < resultsArray.length(); i++){
-                         jsonObject = resultsArray.getJSONObject(i);
-
-              if (jsonObject != null && jsonObject.has("Bid")
-                      && jsonObject.getString("Bid") != null
-                      && !"null".equalsIgnoreCase(jsonObject.getString("Bid")))
-                batchOperations.add(buildBatchOperation(jsonObject));
-              else
-                Toast.makeText(context, context.getResources().getString(R.string.stockNotFound), Toast.LENGTH_SHORT).show();
+              jsonObject = resultsArray.getJSONObject(i);
+              batchOperations.add(buildBatchOperation(jsonObject));
             }
           }
+
         }
       }
     } catch (JSONException e){
@@ -83,23 +81,36 @@ public class Utils {
   public static ContentProviderOperation buildBatchOperation(JSONObject jsonObject){
     ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
         QuoteProvider.Quotes.CONTENT_URI);
-    try {
-      String change = jsonObject.getString("Change");
-      builder.withValue(QuoteColumns.SYMBOL, jsonObject.getString("symbol"));
-      builder.withValue(QuoteColumns.BIDPRICE, truncateBidPrice(jsonObject.getString("Bid")));
-      builder.withValue(QuoteColumns.PERCENT_CHANGE, truncateChange(
-          jsonObject.getString("ChangeinPercent"), true));
-      builder.withValue(QuoteColumns.CHANGE, truncateChange(change, false));
-      builder.withValue(QuoteColumns.ISCURRENT, 1);
-      if (change.charAt(0) == '-'){
-        builder.withValue(QuoteColumns.ISUP, 0);
-      }else{
-        builder.withValue(QuoteColumns.ISUP, 1);
-      }
 
-    } catch (JSONException e){
+    String changes = null;
+    try {
+      changes = jsonObject.getString("Change");
+    } catch (JSONException e) {
       e.printStackTrace();
     }
-    return builder.build();
+    Log.d("values", changes);
+    if (changes != null && changes != "null") {
+      try {
+        String change = jsonObject.getString("Change");
+        builder.withValue(QuoteColumns.SYMBOL, jsonObject.getString("symbol"));
+        builder.withValue(QuoteColumns.BIDPRICE, truncateBidPrice(jsonObject.getString("Bid")));
+        builder.withValue(QuoteColumns.PERCENT_CHANGE, truncateChange(
+                jsonObject.getString("ChangeinPercent"), true));
+        builder.withValue(QuoteColumns.CHANGE, truncateChange(change, false));
+        builder.withValue(QuoteColumns.ISCURRENT, 1);
+        if (change.charAt(0) == '-') {
+          builder.withValue(QuoteColumns.ISUP, 0);
+        } else {
+          builder.withValue(QuoteColumns.ISUP, 1);
+        }
+
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+
+      return builder.build();
+    }
+    return null;
+
   }
 }
